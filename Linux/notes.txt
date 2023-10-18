@@ -1,0 +1,144 @@
+__ < file 
+__ > __ (écrase le file)
+__ 2> __ (sortie d'erreur --> c'est différents de la sortie standart)
+__ >> __
+__ 2>> __
+
+Using > to redirect output is the same as using 1>. This says to redirect stdout (file descriptor 1).
+
+cmd &2>1 file (jsp ce que ça fait mais c'était pas la sol°)
+cmd 2&>1 file (rediriger la sortie vers un fichier, vers un handle). Ca crée un fichier "1" et il contient la sortie d'erreur.
+cmd 2>&1 file (rediriger la sortie d'erreur vers la sortie strandard)
+
+cmd 2>&1 > file (ça crée un fichier mais à voir exactement).
+cmd file 2>&1 ( ça fonctionne _ça fait bien ce qu'on veut)
+cmd 1>file 2>&1 (le prof a vu aussi cmd 1>file 2>&1)
+cmd &> file (c'est du bash mais pas du shell, à prioris ça fonctionne --> Ca redirige tous les fluxs)
+
+sort | file (essaie de trier un truc qui n'existe pas) lance la suite sur la commande file)
+sort file1 file2 --> Trie le contenue des 2 fichiers (meilleur solution optimisé d'après le prof)
+
+sort > file (trier vers 1 fichier sans utiliser vi)
+rq: ctrl+d pour demander d'arrêter à la commande sort de trier
+
+sort > noms.txt --> Puis entrer les noms (1 nom, Entrée, etc) une fois que la commande est lancée "Nicolas" "Lucas" "Evan"
+
+rq: cmd >file 2>&1 (ici ça redirige la sortie 2 vers la sortie 1) alors que ds la commande (cmd &2>1 file), le & lance en tâche de fond.
+
+
+sort -u file (elle trie et elle retire tous les doublons) --> Dans la vie réel cette commande est mieux
+sort file | uniq ()
+cat file | sort | uniq (d'abord ça sort puis ça fait uniq)
+cat file | uniq | sort (rigolo comme les sorties mais pas bon)
+cat file | uniq | sort | uniq ---> fait la meme chose qu'avec le -u
+
+more file
+cat file | more
+
+reprise:
+echo 'I am $USER' --> c du texte
+echo "I am $USER" --> c une variable
+
+on peut aussi insérer des commandes:
+uname: donne le nom du noyau
+uname -a: toutes les infos du noyau de son archi etc
+uname -r: donne uniquement le n° de version du noyau
+si on fait "cd /lib/modules" on voit la v courante et les versions précédentes.
+rq: avec unamre -r on a la v courante
+
+rq: 
+ -noyau modulaire = il y a des modules --> modules non actives par défaut ms que le sys charge à la demande
+ - qd on créer son module on compile un fichier .ko je crois
+ 
+Comment chronométrer l'exec d'1 tache ? 
+time nomCommande 
+ex: time ls -R /etc
+
+time donne 3 temps:
+- temps réel: comme qd tu prend ton chrono et que tu l'actives au début et stoppe a la fin d'une activité --> temps sys + temps user + temps d'attente
+- temps user: 
+- temps sys: ts les accès disque se font en espace sys -> dc c du temps sys
+
+rq: temps user + temps sys souvent < temps réel car on a un sys multitaches > et il donne la main à d'autre process quand c'est lancé
+rq: le temps user ne peut etre sup au temps réel; mais avec la cmd top, le temps (user je crois) peut etre sup à 100% je crois
+
+Def° de variable:
+ds un shell on peut définir des variabels:
+ex déclarer une var: 
+FOO="bar" (ds le process actuel) ou export FOO="bar" (dans le process et ses process enfants)
+echo $FOO pour afficher.
+
+variable a gros impact:
+HOME -> représente le Home directory
+PATH -> 
+EDITOR -> Editeur de texte par défaut (souvent nano, vi). Elle n'est pas forcément renseignée.
+TERM -> type de terminal qu'on a. Peut-etre utiliser ave un reverse shell (commme avec netcat ou un bash)
+LINES -> nb lignes de notre terminal
+COLUMNS -> nb colonnes de notre terminal
+LD_PRELOAD -> var qui dit au sys de pré-charger une librairie. Permet de surcharger des f° de la lib C par ex. L'étape premier c'est de faire un strings du fichier.
+
+toutes var d'env peut changer le comportement d'un prog.
+donc attention à $PATH et $LD_PRELOAD qd on récupère un sys.
+
+rq var env --> pour voir toutes les vars d'environnement > env ou set.
+env stocke en mémoire ds l'env de chaque commande les vars d'environnement.
+
+rq: 
+- certains avant ont commencé leur variable PATH par un point. Quelle est l'impact ? ça crée de vulns parce que ça peut exécuter des choses (ça peut aider pour les ctf pour faire des escalades de privilèges)
+- le point se met à la fin pour eviter l'exec
+- autre alternative --> sl au lieu de ls
+--> conclusion: ne pas mettre de point dans le PATH --> mettre absolument le nom du répertoire en absolue
+
+rq: /proc/PID pour trouver 1 processus
+ls /proc/self/ --> y'a des vecteurs d'attaques qui passent par /proc/self
+cat /proc/self/environ --> c'est ds ce file que y'a toute les var d'env.
+
+où se trouve vim ? faut taper "which wim" pour savoir ou alors "whereis vim". which est aps mla d'après le prof.
+
+
+Attention --> revoir
+- commande chown
+- bashrc
+- sourcec
+- Pipe Nommée !!
+- vi/vim
+- voir ce qu'est CCAT sur debian/ubuntu pour voir ce que les autres voulaient voir
+- voir à quoi sert /dev et dev/zeor les trucs comme ça
+- voir le nm à quoi ça sert
+
+rq: netcat est 1 cmd qui permet d'avoir un shell distant, et on peut le faire aussi avec bash --> La sortie du terminal vient dans l'entrée du tien et inversement.
+- y'a pas de corbeille qui n'est qu'un concept de l'interface graphique --> cette corbeille marche que pour les progs qui fonctionnen avec la corbeille.
+rappel:
+commande strings --> Va afficher ce que strings pense etre des chaines de texte dans un fichier. C'est un peu la base du reverse.
+ 
+
+Voir tout ça pour bash:
+.bashrc --> fichier de config du bash. C'est dans le bashrc qu'on donne le cnb de commande dispo dans le bash_history.
+.bash_history (1000 dernière commande). Un attaquant peut demander de ne pas enregistrer l'hitorique de ces cmmandes sur l'OS. --> Comande "history" pour voir l'historique des commmandes.
+	tips: on peut taper "cmd ctrl-r" qui est un reverse search.
+.profile
+.bash-profile
+
+avec ls on peut savoir la taille d'un file: mais comment savoir la taille d'un fichier sur le disque:
+--> du (disk usage)
+ex: du sdBM /etc/* (force l'unité en megaOctet, on force à avoir une somme et un calcul pour chaque répertoire)
+
+rq: si on veut le voir dans le shell on peut taper history direct.
+
+comment connaitre l'espace libre d'un disque ? 
+avec df (disk free)
+df -h /etc --> Savoir si on peut écrire encore de la place dans etc.
+
+combien sera la taille de ce fichier:
+dd if=/dev/zero of=test.dd count=1
+dd if=/dev/zero of=test2.dd count=1 seek=1000000
+ou alors dd if=/dev/random of=test2.dd count=1 seek=1000000
+rq: système de sauvg par block n'auront pas de soucis avec ça mais ptetre un problème lors de la restauration du fichier.
+
+et après on recheck avec df - /etc (ou le répertoire intéressant) --> on peut avoir des fichiers qui dépasse la capacité du disque.
+et en fait ce fichier est un fichier creux (sparse en anglais) car on a fait que 1 block. Donc en gros on peut créer des fichiers bcp + gros que la capacité du disk.
+Cette technique est bien pour vérifier les logiciels de sauvegarde.
+random et urandom (urandom a une entropie + forte que random)
+
+bien comprendre la diff entre la taille affiché lors du ls et la taille affiché sur le disk.
+
