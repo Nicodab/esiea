@@ -265,7 +265,7 @@ Ca permet de savoir qui est connecté.
 
 Commande wget: permet de télécharger
 ex: wget -N URL. -N pour le timestamp --> donc la date du fichier qu'il va récupérer. donc si on a déjà récupérer le fichier il va changer la date avec l'ancien timestamp c'est ça ? 
-l'option -m est intéressante aussi d'après le prof.
+l'option -m (m pour miror) est intéressante aussi d'après le prof.
 
 Sleep 60m puis reboot ou eject
 
@@ -276,3 +276,35 @@ Commande date: date donne la date d'ajd
 
 Commande git:
 
+Commande grep:
+
+grep -r motif dir (option, motif et fichier/répertir)
+grep -i (pour ignorer la casse)
+grep -v (sert à exclure les lignes qui contiennent un certains motif)
+grep -E ou -P (E: Extended Regular Expression ou P: Perl Regex)
+
+connexion en ssh sur 10.0.4.9
+	12221
+	    |
+	    |
+	    |
+	    8
+	12230
+	    |
+	    |
+	  240
+	 
+	 
+ctf1: CGR{ssh1_flag} fallait juste se co avec l'IP de sa machine
+ctf2 ():
+ctf3 (port 12230): fouiller dans la machine une fois rentrée avec ctf en username et easynetstat en pwd)
+ctf4 (port 240): pas besoin de mdp, on a juste besoin de forward --> voir sur google comment faire une forward
+
+dans le dossier Revision_devoirs --> c'est nos devoirs et on doit rendre par mail.
+L'archive que l'on devra rendre au prof est un tar.gz
+
+(cristophe)grenier@cgsecurity.org
+
+sur le moodle y'a 2 cours et on ne fait que celui avec les rappels Linux. Qd on lance le qcm on a que 15 min
+
+pas bcp de points sur la partie td il fera --> et les challenges ne sont pas notés c'est plutot ce qu'on lui envoit comme rapport j'imagine.
