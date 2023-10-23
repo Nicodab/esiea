@@ -41,6 +41,30 @@ public class PileRPL {
         }
     }
 
+    public void multiply(){
+
+        if(this.nbObj < 2){
+            System.out.println("Cannot substract, not enough object in stack");
+        } else {
+
+            ObjEmp obj1 = this.pop();  
+            ObjEmp obj2 = this.pop();  
+            this.push(obj1.multiply(obj2));
+        }
+    }
+
+    public void divide(){
+
+        if(this.nbObj < 2){
+            System.out.println("Cannot substract, not enough object in stack");
+        } else {
+
+            ObjEmp obj1 = this.pop();  
+            ObjEmp obj2 = this.pop();  
+            this.push(obj1.divide(obj2));
+        }
+    }
+
     public ObjEmp pop(){
 
         ObjEmp obj;
@@ -74,22 +98,6 @@ public class PileRPL {
         return;
     }
 
-/*
-    public String toString(){
-
-        if(this.nbObj == 0){
-            return "src.PileRPL is empty";
-        }
-        String str = "PileRpl count<"+ this.nbObj +"> and containe( ";
-        for (int i = 0; i < this.nbObj; i++) {
-            if( this.stack[i] != null ) {
-                str += " ";
-                str += this.stack[i];
-            }
-        }
-        return str + " )";
-    }
-*/
 // Pour le moment ne pas se prendre la tête avec cette f° ni le toString()
     /*private int getLongestLengthObjEmp(){
         int lengthLongestObj = 0;
@@ -107,10 +115,10 @@ public class PileRPL {
         
         for(int i = 0; i < this.nbObj; i++){
 
-            String strValue = "\n"+this.stack[i].getA() + " " + this.stack[i].getB()+"\n";
+            String strValue = this.stack[i].getA() + " " + this.stack[i].getB();
             String stringPadding = "";
             for(int a = 0; a < 10 - strValue.length(); a++) stringPadding += " ";
-            str += ("!" + strValue + stringPadding + "!");
+            str += ("!" + strValue + stringPadding + "!\n");
         }
 
         // print tab enf line

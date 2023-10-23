@@ -2,7 +2,7 @@ package src;
 
 //import java.lang.*;
 
-class ObjEmp {
+public class ObjEmp {
 
     private int a;
     private int b;
@@ -22,6 +22,18 @@ class ObjEmp {
     // Soustraire un ObjEmp avec un autre
     public ObjEmp substract(ObjEmp obj){
         ObjEmp newObj = new ObjEmp(this.a - obj.getA(), this.b - obj.getB());
+        return newObj; 
+    }
+
+    // Multiplier un ObjEmpl avec un autre
+    public ObjEmp multiply(ObjEmp obj){
+        ObjEmp newObj = new ObjEmp(this.a * obj.getA(), this.b * obj.getB());
+        return newObj; 
+    }
+
+    // Diviser un ObjEmpl avec un autre
+    public ObjEmp divide(ObjEmp obj){
+        ObjEmp newObj = new ObjEmp(this.a / obj.getA(), this.b / obj.getB());
         return newObj; 
     }
 
