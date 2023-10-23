@@ -26,10 +26,14 @@ public class CalcUI { // C'est le user qui va manipuler cet obj
     private ServerSocket serverSocket;
     private Socket clientSocket;
     private BufferedReader inputUser;
+    private BufferedReader inputReplay; // Revu des actions du fichier de log
+    private BufferedReader inputLog; // Buffer d'un fichier de log à lire en flux d'entrée pour activer lemode replay.
     private PrintStream outputUser;
     private PrintStream outputLog; // log recording pour savoir qd on enregistre maispas la var ici nécessairement OU REVU de session ne serait-ce que pour avoir l'écho de ce qu'on interprète.
-    
     private boolean logMode = false;
+    private boolean replayMode = false;
+    private boolean exit = false;
+    
     // On peut initialiser la pile au début dans son constructeur comme ca on a déjà son argument
     public CalcUI(String [] args) {
         try{
@@ -51,20 +55,33 @@ public class CalcUI { // C'est le user qui va manipuler cet obj
                 try {
                     // On déclare une pile ici
                     outputUser.println(pile); // Outstream textuel bufferisée pour afficher la pile ou l'état de la pile etc... ça se fait avec la méthode toString redéfinit dans la classe PileRPL
-                    String cmd = inputUser.readLine(); // Lecture inputStream du User (pour le moment ce n'est que fait en local) (ajouter l'aide avec le help)
+                    String cmd = inputUser.readLine(); // Lecture inputStream du User (pour le moment ce n'est que fait en local) (ajouter l'aide avec le help) - ou d'un fichier
                     if (logMode == true) {
                         // Si en mode "recording", enregistrez les commandes dans le fichier de log
                         outputLog.println(cmd);
                         outputLog.flush();
                     }
                     //System.out.println("écriture: " + cmd); // pas besoin de cette commande mais permet de voir qu'on récupère bien les commandes du flux d'entrée
+                    if (cmd.equals("exit")) return; // Pour quitter leprog sans faire un System.exit(0); qui serait trop brutal
                     cmdParser(cmd); //--> Revoir comment faire et définir les différentes commande possible du user (par exemple push, pop, exit et puis les opérateur comme mult, add, div, sub)
                     /// CEST ICI QU'on définit le switch pour la pile en fonction des commandes push etc.
                     // if ("push")
 
                 }
                 catch (Exception e){
-                    System.out.println(e); // A changer
+                    if (!e.getMessage().equals("java.lang.NullPointerException: Cannot invoke \"src.PileRPL.push(src.ObjEmp)\" because \"this.pile\" is null"))
+                        System.out.println(e); // A changer
+                    // Si l'erreur est que c'est la fin de la lecture du fichier
+                    else {
+                        // !!! Ce CODE NE MARCHE PAS CA QUITTE SOIT directe quand y'a un exit en fin de fichier 
+                        /// !! Et quand ya pas de exit en fin de fichier --> boucle infini avec null pointer sur la pile 
+                        try{
+                            initFullLocal(logMode);
+                        }
+                        catch (Exception excep){
+                            System.out.println(excep);
+                        }
+                    }
                 }
             }
     }
@@ -74,23 +91,33 @@ public class CalcUI { // C'est le user qui va manipuler cet obj
         System.out.println("initStreams\n");
         //String response = inputUser.readLine(); A décommenter !
         // les outputs vont etre initialisé dans chacune des f° ci-dessous
-        String argument = args[0];
-        String pileSize = args[1];
-        String recording = ""; // -R après user:local pour indiquer le mode recording
-        if (args.length == 3) recording = args[2]; 
+        String argument = args[0];// argument user:local/remote
+        String pileSize = args[1]; //3
+        String recordOrReplay = ""; // rec/rep=./chemin/vers/ficher après user:local pour indiquer le mode recording
+
+        if (args.length == 3) recordOrReplay = args[2]; // le 2eme arg peut-être soit record soit replay
         try{
-                if (argument.equals("user:log")) {
+                if (argument.equals("user:local") && (recordOrReplay.equals("")) ) {
+                pile = new PileRPL(Integer.valueOf(pileSize)); //Init de la pile
+                initFullLocal(logMode);
                 // Connecter l'utilisateur en mode "log".
-                System.out.println("init flux log\n");
-            } else if (argument.equals("user:replay")) {
+                System.out.println("init flux local sans option\n");
+            } else if ((argument.equals("user:local")) && (recordOrReplay.contains("rep="))) {
+                pile = new PileRPL(Integer.valueOf(pileSize)); //Init de la pile
+                String filepath = "";
                 // Connecter l'utilisateur en mode "replay".
+                replayMode = true;
+                filepath = recordOrReplay.split("=")[1];
+                System.out.println(filepath);
+                initFullReplayLocale(filepath);
                 System.out.println("init flux replay\n");
-            } else if (argument.equals("user:local")) {
+            } else if ((argument.equals("user:local")) && (recordOrReplay.contains("rec="))) {
                 System.out.println("USER:LOCAL");
                 // Connecter l'utilisateur en mode "local" | OK
                 pile = new PileRPL(Integer.valueOf(pileSize));
                 // Si user:local:log dans l'argument --> On passe le bool à 'true'
-                if (recording.equals("-R")) logMode = true;
+                /// !!! ATTENTION !!! C'est surement la mauvaise variable avant le equals/contains
+                if (recordOrReplay.equals("-rec")) logMode = true;
                 initFullLocal(logMode);
             } else if (argument.equals("user:remote")) {
                 // Connecter l'utilisateur en mode "local".
@@ -117,7 +144,6 @@ public class CalcUI { // C'est le user qui va manipuler cet obj
 
     // Initialisation du initFullLocal avec 
     public void initFullLocal(boolean logMode) throws Exception {
-        System.out.println("logMode: " + logMode);
         inputUser = new BufferedReader(new InputStreamReader(System.in));
         outputUser = System.out;
         //Si c'est en mode log on ouvre un fichier et les flux sortants seront redirigés dedans
@@ -134,8 +160,15 @@ public class CalcUI { // C'est le user qui va manipuler cet obj
         outputUser = new PrintStream(clientSocket.getOutputStream());
     }
 
-    public void initFullReplayLocale(){
-        
+    public void initFullReplayLocale(String filename){
+        try {
+			inputUser = new BufferedReader(new FileReader(filename));
+            System.out.println(filename);
+            outputUser = System.out;
+		} catch( FileNotFoundException exc ) {
+			System.out.println( "le fichier n'existe pas" );
+			System.exit( 1 );
+		}
     }
     public void initReplayNetwork(){
         
@@ -171,6 +204,7 @@ public class CalcUI { // C'est le user qui va manipuler cet obj
         // Faire une fonction pour voir comment bien quitter (remote => fermer socket ou local => pas juste exite en pure et dure.)
         else if (cmd.contains("exit")){
             System.out.println("command: exit");
+
         }
         else System.out.println("regarder l'aide avec l'option -h");
     }
